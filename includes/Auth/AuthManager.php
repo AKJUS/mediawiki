@@ -331,7 +331,7 @@ class AuthManager implements LoggerAwareInterface {
 			$this->callMethodOnProviders( self::CALL_ALL, 'postAuthentication',
 				[ $this->userFactory->newFromName( (string)$guessUserName ) ?: null, $res ]
 			);
-			$session->remove( 'AuthManager::authnState' );
+			$session->remove( self::AUTHN_STATE );
 			$this->getHookRunner()->onAuthManagerLoginAuthenticateAudit(
 				$res, null, $guessUserName, [
 					'performer' => $session->getUser()
@@ -503,7 +503,7 @@ class AuthManager implements LoggerAwareInterface {
 				$this->callMethodOnProviders( self::CALL_ALL, 'postAuthentication',
 					[ $this->userFactory->newFromName( (string)$guessUserName ), $res ]
 				);
-				$session->remove( 'AuthManager::authnState' );
+				$session->remove( self::AUTHN_STATE );
 				$this->getHookRunner()->onAuthManagerLoginAuthenticateAudit(
 					$res, null, $guessUserName, [
 						'performer' => $session->getUser()
@@ -1527,8 +1527,7 @@ class AuthManager implements LoggerAwareInterface {
 			$cache = $this->objectCacheFactory->getLocalClusterInstance();
 			$lock = $cache->getScopedLock( $cache->makeGlobalKey( 'account', md5( $user->getName() ) ) );
 			if ( !$lock ) {
-				// Don't clear AuthManager::accountCreationState for this code
-				// path because the process that won the race owns it.
+				// Don't clear account creation state for this code path because the process that won the race owns it.
 				$this->logger->debug( __METHOD__ . ': Could not acquire account creation lock', [
 					'user' => $user->getName(),
 					'creator' => $creator->getName(),
@@ -1623,7 +1622,7 @@ class AuthManager implements LoggerAwareInterface {
 				] );
 				$ret = AuthenticationResponse::newFail( $status->getMessage() );
 				$this->callMethodOnProviders( self::CALL_ALL, 'postAccountCreation', [ $user, $creator, $ret ] );
-				$session->remove( 'AuthManager::accountCreationState' );
+				$session->remove( self::ACCOUNT_CREATION_STATE );
 				return $ret;
 			}
 
@@ -2529,7 +2528,7 @@ class AuthManager implements LoggerAwareInterface {
 				] );
 				$ret = AuthenticationResponse::newFail( $status->getMessage() );
 				$this->callMethodOnProviders( self::CALL_PRE | self::CALL_PRIMARY, 'postAccountLink', [ $user, $ret ] );
-				$session->remove( 'AuthManager::accountLinkState' );
+				$session->remove( self::ACCOUNT_LINK_STATE );
 				return $ret;
 			}
 
