@@ -500,11 +500,8 @@ class AuthManager implements LoggerAwareInterface {
 					'reason' => $status->getWikiText( false, false, 'en' ),
 				] );
 				$res = AuthenticationResponse::newFail( $status->getMessage() );
-				if ( $state['maybeLink'] ) {
-					$res->createRequest = new CreateFromLoginAuthenticationRequest( null, $state['maybeLink'] );
-				}
 				$this->callMethodOnProviders( self::CALL_ALL, 'postAuthentication',
-					[ $this->userFactory->newFromName( (string)$guessUserName ) ?: null, $res ]
+					[ $this->userFactory->newFromName( (string)$guessUserName ), $res ]
 				);
 				$session->remove( 'AuthManager::authnState' );
 				$this->getHookRunner()->onAuthManagerLoginAuthenticateAudit(
